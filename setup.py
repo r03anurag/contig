@@ -9,16 +9,15 @@
 #    (i) There are at least 100 ways to generate num (which happens to be top 108 in 'A').
 #    (ii) num < 50
 #    (iii) num > 50 and num has at least 5 factors <= 12.
-#    Call this list 'B'. 
+#    Call this list 'B'. It has 75 items.
 '''[B = further_filter_nums(A)]'''
 # 3. Obtain another copy of list 'A', but only keep numbers not already present in 'B'.
-#    I removed some numbers (85, 135, 104, 117, 154, 82, 102, 92, 95) from the end as 
-#    they are not too easily derivable. Call this list 'C'.
+#    Call this list 'C'.
 '''[C = list(filter(lambda w: w not in B, A))]'''
-# 4. Randomly choose the remaining elements as needed from list C to have 81 elements.
+# 4. Take the top 25 choices to get 100 numbers total.
 #    Combine B and C, and call this final selection of numbers 'total'.
-#    Reshape it into a 9x9 numpy array.
-'''[total = reshape_into_9by9(B+C); set_gameboard() call]'''
+#    Shuffle 'total', and reshape it into a 10x10 numpy array.
+'''[total = reshape_into_10by10(B+C); set_gameboard() call]'''
 
 
 import itertools
@@ -98,7 +97,7 @@ Most important function that sets the gameboard.
 Takes the numbers satisfying the two conditions from above, and then 
 randomly picks remaining numbers from the most easily derivable numbers (no duplicates).
 Input: None
-Output: 9x9 numpy.array containing the numbers
+Output: 10x10 numpy.array containing the numbers
 '''
 def set_gameboard():
     #important = further_filter_nums(generate_derivations())
@@ -109,13 +108,14 @@ def set_gameboard():
                 54, 56, 60, 160, 140, 66, 70, 72, 80, 84, 144, 88, 
                 90, 96, 100, 108, 110, 112, 150, 120, 126, 132]
     #t = list(filter(lambda w: w not in important, generate_derivations()))
-    others = random.sample([64, 81, 63, 55, 52, 77, 99, 51, 128, 65, 121, 
-                            75, 57, 68, 78, 105, 76, 58, 69, 91, 98, 62, 
-                            74, 125],
-                            k = 81-len(important))
+    others = [64, 81, 63, 55, 52, 77, 99, 51, 128, 65, 121, 
+              75, 57, 68, 78, 105, 76, 58, 69, 91, 98, 62, 
+              74, 125, 85]
     total = important+others
     random.shuffle(total)
     board = np.array(total)
-    board = board.reshape((1,81))
-    board = board.reshape((9,9))
-    
+    board = board.reshape((1,100))
+    board = board.reshape((10,10))
+    print(board)
+
+set_gameboard()
