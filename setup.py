@@ -1,5 +1,26 @@
 ################ file responsible for setting up the gameboard. Comments are kept to show how numbers were selected.
 ################ important functions: generate_arithmetic_combos, set_gameboard
+
+### Process of deriving the numbers on the board
+# 1. Sort all the numbers by the number of ways you can derive them with 
+#    3 12-sided dice using mathematical operators +-,*,/,**. Call this list 'A'. 
+'''[A = generate_derivations()]'''
+# 2. Select numbers that satisfy the following conditions:
+#    (i) There are at least 100 ways to generate num (which happens to be top 108 in 'A').
+#    (ii) num < 50
+#    (iii) num > 50 and num has at least 5 factors <= 12.
+#    Call this list 'B'. 
+'''[B = further_filter_nums(A)]'''
+# 3. Obtain another copy of list 'A', but only keep numbers not already present in 'B'.
+#    I removed some numbers (85, 135, 104, 117, 154, 82, 102, 92, 95) from the end as 
+#    they are not too easily derivable. Call this list 'C'.
+'''[C = list(filter(lambda w: w not in B, A))]'''
+# 4. Randomly choose the remaining elements as needed from list C to have 81 elements.
+#    Combine B and C, and call this final selection of numbers 'total'.
+#    Reshape it into a 9x9 numpy array.
+'''[total = reshape_into_9by9(B+C); set_gameboard() call]'''
+
+
 import itertools
 import os
 from sympy import isprime, divisors
@@ -88,10 +109,9 @@ def set_gameboard():
                 54, 56, 60, 160, 140, 66, 70, 72, 80, 84, 144, 88, 
                 90, 96, 100, 108, 110, 112, 150, 120, 126, 132]
     #t = list(filter(lambda w: w not in important, generate_derivations()))
-    #t = further_filter_nums(t)
     others = random.sample([64, 81, 63, 55, 52, 77, 99, 51, 128, 65, 121, 
                             75, 57, 68, 78, 105, 76, 58, 69, 91, 98, 62, 
-                            74, 125, 85, 135, 104, 117, 154, 82, 102, 92, 95],
+                            74, 125],
                             k = 81-len(important))
     total = important+others
     random.shuffle(total)
