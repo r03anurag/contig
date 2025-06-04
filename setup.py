@@ -117,5 +117,5 @@ def set_gameboard():
     board = board.reshape((1,100))
     board = board.reshape((10,10))
     print(board)
-
+    #print(np.diag(board, k=1))
 set_gameboard()
