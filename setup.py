@@ -99,7 +99,7 @@ randomly picks remaining numbers from the most easily derivable numbers (no dupl
 Input: None
 Output: 10x10 numpy.array containing the numbers
 '''
-def set_gameboard():
+def get_gameboard():
     #important = further_filter_nums(generate_derivations())
     important = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 
                 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 
@@ -116,6 +116,10 @@ def set_gameboard():
     board = np.array(total)
     board = board.reshape((1,100))
     board = board.reshape((10,10))
-    print(board)
+    zrs = np.zeros((10,10))
+    #RM
+    #np.savez('test.npz', arr=board)
+    d = np.load('test.npz')
+    board = d['arr']
+    return board, zrs.astype(int)
     #print(np.diag(board, k=1))
-set_gameboard()

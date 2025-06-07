@@ -50,12 +50,15 @@ Human (Player 1) always starts first. Computer is Player 2.
             (a) If the neighbor score of the System will become 0, System takes this square and declares itself the winner.
         <3> Compute the total score for this number as:
 
-            Score(number) = 0.4*Winning_Potential(number) + 0.4*Neighbors(number) + 0.2*Blocking_Factor(number)
-
+            Score(number) = 0.4*(1-nd/100)*Winning_Potential(number) + 0.4*(1+nd/100)*Neighbors(number) + 0.2*Blocking_Factor(number),
+            
+            where nd is the difference in neighbor points between the Computer and Human. This is done so that the system will balance 
+            its prioritization of neighbors and win streaks.
+            
             This is to emphasize getting a winning streak of 6 and reducing points over blocking the other player.
             As such, the system will not block you at the expense of its own points and winning streak. 
 
-    [c] Choose the option with the highest possible score. 
+    [c] Choose the option with the highest score. 
 9. Mark the selected square, and update points accordingly.
 
 The above steps are repeated until there is a winner.
