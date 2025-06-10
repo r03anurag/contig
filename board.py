@@ -56,23 +56,11 @@ class Board:
 
     '''Compute the total winning potential and blocking factor of a given number for a given player'''
     def total_winning_potential_and_blocking_factor(self, sq: int, player_id: int):
-        #row_score, col_score, nwse_diag_score, nesw_diag_score = 0,0,0,0
         x,y = self.num_loc(sq=sq)
         col = self.num_status[max((x-5,0)):min(x+6,10), y]
-        #print(self.num_placement[max((x-5,0)):min(x+6,10), y])
         row = self.num_status[x, max((y-5,0)):min(y+6,10)]
-        #print(self.num_placement[x, max((y-5,0)):min(y+6,10)])
-        # add indices for the diags to control space
         nwse_diag = np.diag(self.num_placement, k=y-x)
-        #print(nwse_diag)
-        #print(np.diag(self.num_placement, k=y-x))
-        # lr_flipped_num_placement = np.fliplr(self.num_placement)
-        # flip_loc = np.where(lr_flipped_num_placement == sq)
-        # xf, yf = flip_loc[0][0], flip_loc[1][0]
         nesw_diag = np.diag(np.fliplr(self.num_placement), k=9-y-x)
-        #print(nesw_diag)
-        #print(np.diag(np.fliplr(self.num_placement), k=9-y-x))
-        #print( np.flip(np.diag(np.fliplr(self.num_placement), k=9-y-x))[max((xf-5,0)):min((yf+6,10))] )
         row_wp, row_bf = self.winning_potential_and_blocking_factor(oneD=row, sq=sq, player_id=player_id)
         col_wp, col_bf = self.winning_potential_and_blocking_factor(oneD=col, sq=sq, player_id=player_id)
         nwse_diag_wp, nwse_diag_bf = self.winning_potential_and_blocking_factor(oneD=nwse_diag, sq=sq, player_id=player_id, diag=True)
@@ -99,24 +87,3 @@ class Board:
         neighbs = self.num_status[tuple(indices.T)].astype(bool)
         total = np.sum(neighbs)
         return total/9, total
-    
-##############################################################
-
-"""
-class HumanPlayer:
-    def __init__(self, num: int):
-        self.id = num
-        self.points = 125
-        self.color = ["blue","red"][self.id-1]
-    
-##############################################################
-
-class MachinePlayer:
-    def __init__(self):
-        self.id = 2
-        self.points = 125
-        self.color = "red"
-
-    '''Function that will select a square based on possible candidates and its heuristic'''
-    def select_square(candidates: list):
-"""

@@ -1,14 +1,12 @@
 ########### file to define a class for a typical game
 from board import Board
 from setup import generate_arithmetic_combos
-import random 
 import heapq
-import sys
 
 class ContigGame:
     def __init__(self, computer: bool):
-        self.player1 = {"points": 120, "color": "#a8e0f0"}
-        self.player2 = {"points": 120, "color": "#f5bebc"}
+        self.points1 = 100
+        self.points2 = 100
         self.computer_mode = computer
         self.board = Board()
         self.current_player = False
@@ -22,67 +20,59 @@ class ContigGame:
         return (0.4*(1-deficit)*wp + 0.4*(1+deficit)*nbn + 0.2*bf, 
                 nb,
                 wp >= 1, 
-                max((self.player2['points']-nb,0))==0)
+                max((self.points2-nb,0))==0)
     
-    '''Command Line Execution of a human vs. Computer Game - FOR TESTING ONLY. NOT MEANT FOR 
-        REGULAR GAMEPLAY.'''
-    def human_vs_computer_CLI(self):
-        print(self.board.num_placement)
-        while True:
-            ## Human
-            d1, d2, d3 = random.randint(1,12), random.randint(1,12), random.randint(1,12)
-            pass1 = False
-            while True:
-                expr = input(f"Player 1, you rolled {d1}, {d2}, {d3}. Form an expression using mathematical operators, or pass:")
-                if expr == "pass":
-                    pass1 = True
-                    break
-                result = eval(expr)
-                good = self.board.allocate_square(sq=result, player_id=1)
-                if good:
-                    break
-            if not pass1:
-                wp1, _ = self.board.total_winning_potential_and_blocking_factor(sq=result, player_id=1)
-                _, nb1 = self.board.neighbor_score(sq=result)
-                self.player1['points'] = max((self.player1['points']-nb1,0))
-                print(self.board.num_status)
-                print(f"scores (Human, Computer): {self.player1['points']}, {self.player2['points']}")
-                if wp1 >= 1 or self.player1['points'] == 0:
-                    print("Player 1 Wins!")
-                    sys.exit(1)
-
-            ## Computer
-            d1, d2, d3 = random.randint(1,12), random.randint(1,12), random.randint(1,12)
-            pass2 = False
-            print(f"Computer rolled {d1}, {d2}, {d3}. Looking at possibilities...")
-            poss = generate_arithmetic_combos(x=d1, y=d2, z=d3)
-            #poss = list(filter(lambda p: self.board.allocate_square(sq=p, player_id=2, check_only=True), list(poss.keys())))
-            sposs = []
-            for n, _ in poss.items():
-                #print(f"CHOICE {n}")
-                check = self.board.allocate_square(sq=n, player_id=2, check_only=True)
-                if check:
-                    sc, nb2, wpFlag, nbFlag = self.heuristic(candidate=n)
-                    heapq.heappush(sposs, [-sc, nb2, n])
-                    if wpFlag or nbFlag:
-                        _ = self.board.allocate_square(sq=n, player_id=2)
-                        self.player2['points'] = max((self.player2['points']-nb2,0))
-                        print(self.board.num_status)
-                        print(f"scores (Human, Computer): {self.player1['points']}, {self.player2['points']}")
-                        print("Computer Wins!")
-                        sys.exit(1)
-            if len(sposs) == 0:
-                pass2 = True
-                print("No possibilities, Computer passes its turn")
-            if not pass2:
-                _, nb2, choice = heapq.heappop(sposs)
-                _ = self.board.allocate_square(sq=choice, player_id=2)
-                self.player2['points'] = max((self.player2['points']-nb2,0))
-                just = poss[choice].copy()
-                print(f"Computer chooses square {choice}, computed as {just.pop()}. Its score is now {self.player2['points']}")
-                print(self.board.num_status)
-                print(f"scores (Human, Computer): {self.player1['points']}, {self.player2['points']}")
-            
-
-cg = ContigGame(computer=True)
-cg.human_vs_computer_CLI()
+    '''Function to process a human's turn.
+        Inputs: square (int), ID of player (int)
+        Possible Outputs: 
+            - "": desired square is taken or does not exist, choose another.
+            - f"win|{x},{y}|{neighbors}": The respective human player has won the game. UI will know the 
+                     current player and assign a win accordingly.
+            - f"{x},{y}|{neighbors}": The turn is complete, and the other player gets to play now. 
+                                 Subtract the neighbor points and adjust the score.
+    '''
+    def human_turn(self, square: int, player_id: int):
+        good = self.board.allocate_square(sq=square, player_id=player_id, check_only=True)
+        if not good:
+            return ""
+        wp1, _ = self.board.total_winning_potential_and_blocking_factor(sq=square, player_id=player_id)
+        _, nb1 = self.board.neighbor_score(sq=square)
+        _ = self.board.allocate_square(sq=square, player_id=player_id)
+        self.points1 = max((self.points1-nb1,0))
+        if wp1 >= 1 or self.points1 == 0:
+            return f"win|{x},{y}|{nb1}"
+        x,y = self.board.num_loc(sq=square)
+        return f"{x},{y}|{nb1}"
+    
+    '''Function to process machine's turn.
+        Inputs: dice rolls (list of 3 ints)
+        Possible Outputs:
+            - f"win|{x},{y}|{neighbors}{just}": Machine has won. UI knows the current player is 2 and displays accordingly.
+            - "pass": Machine has no options available based on dice rolls, so it passes its turn.
+            - f"{x},{y}|{neighbors}|{just}": Machine has completed its turn. Adjust its neighbor score,
+                                     and display its dice rolls and computation for the human player to see.
+    '''
+    def machine_turn(self, dice: list):
+        poss = generate_arithmetic_combos(x=dice[0], y=dice[1], z=dice[2])
+        sposs = []
+        for n, jsts in poss.items():
+            check = self.board.allocate_square(sq=n, player_id=2, check_only=True)
+            if check:
+                sc, nb2, wpFlag, nbFlag = self.heuristic(candidate=n)
+                heapq.heappush(sposs, [-sc, nb2, n])
+                if wpFlag or nbFlag:
+                    x1, y1 = self.board.num_loc(sq=n)
+                    _ = self.board.allocate_square(sq=n, player_id=2)
+                    self.points2 = max((self.points2-nb2,0))
+                    j = jsts.copy()
+                    j = j.pop()
+                    return f"win|{x1},{y1}|{nb2}|{j}"
+        if len(sposs) == 0:
+            return "pass"
+        _, nb2, choice = heapq.heappop(sposs)
+        _ = self.board.allocate_square(sq=choice, player_id=2)
+        self.points2 = max((self.points2-nb2,0))
+        justs = poss[choice].copy()
+        just = justs.pop()
+        x2, y2 = self.board.num_loc(sq=choice)
+        return f"{x2},{y2}|{nb2}|{just}"

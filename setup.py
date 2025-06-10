@@ -21,8 +21,6 @@
 
 
 import itertools
-import os
-from sympy import isprime, divisors
 from collections import defaultdict
 import random
 import numpy as np
@@ -56,7 +54,7 @@ Outputs: list of all the numbers from 1-180,
          generated with 3 12-sided dice using mathematical operators.
          Sorted in descending order.
 '''
-def generate_derivations():
+'''def generate_derivations():
     deriv = defaultdict(lambda: 0)
     for a in range(1,13):
         for b in range(1,13):
@@ -71,7 +69,7 @@ def generate_derivations():
         with open("nums_likelihood.txt", "w") as nfile:
             for n,c in deriv.items():
                 nfile.writelines([f"{n} {c}\n"])
-    return list(deriv.keys())
+    return list(deriv.keys())'''
 
 '''
 Function that takes the sorted list from generate_derivations()
@@ -81,7 +79,7 @@ and maintains the following numbers:
 Excludes any numbers that do not have at least 100 possible derivations.
 DO NOT CALL THIS FUNCTION; IT IS NOT NECESSARY FOR GAMEPLAY.
 '''
-def further_filter_nums(srtd: list):
+'''def further_filter_nums(srtd: list):
     # function that will give nums an importance score.
     def importance(n: int):
         if n <= 50:
@@ -90,7 +88,7 @@ def further_filter_nums(srtd: list):
             facts_le_12 = list(filter(lambda div: div <= 12, divisors(n=n)))
             return (2, 1/len(facts_le_12))
     imp = list(filter(lambda v: importance(v) <= (2, 0.2), srtd[:108]))
-    return imp
+    return imp'''
 
 '''
 Most important function that sets the gameboard.
@@ -117,9 +115,4 @@ def get_gameboard():
     board = board.reshape((1,100))
     board = board.reshape((10,10))
     zrs = np.zeros((10,10))
-    #RM
-    #np.savez('test.npz', arr=board)
-    d = np.load('test.npz')
-    board = d['arr']
     return board, zrs.astype(int)
-    #print(np.diag(board, k=1))
