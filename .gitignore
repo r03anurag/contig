@@ -27,5 +27,5 @@ dist-ssr
 contig/node_modules
 test.npz
 helpercode.txt
-__pycache__
+__pycache__/
 user-data/
