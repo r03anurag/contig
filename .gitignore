@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# specific directories and/or files
+contig/node_modules
+test.npz
+helpercode.txt
+__pycache__
+user-data/

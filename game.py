@@ -9,7 +9,6 @@ class ContigGame:
         self.points2 = 100
         self.computer_mode = computer
         self.board = Board()
-        self.current_player = False
 
     '''Helper Function that will calculate the heuristic for a machine player, 
         given a certain possible candidate.'''
@@ -35,13 +34,13 @@ class ContigGame:
         good = self.board.allocate_square(sq=square, player_id=player_id, check_only=True)
         if not good:
             return ""
+        x,y = self.board.num_loc(sq=square)
         wp1, _ = self.board.total_winning_potential_and_blocking_factor(sq=square, player_id=player_id)
         _, nb1 = self.board.neighbor_score(sq=square)
         _ = self.board.allocate_square(sq=square, player_id=player_id)
         self.points1 = max((self.points1-nb1,0))
         if wp1 >= 1 or self.points1 == 0:
             return f"win|{x},{y}|{nb1}"
-        x,y = self.board.num_loc(sq=square)
         return f"{x},{y}|{nb1}"
     
     '''Function to process machine's turn.

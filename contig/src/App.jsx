@@ -11,7 +11,6 @@ function getRandomInt(min, max) {
 }
 
 export default function ContigGame() {
-  const [count, setCount] = useState(0);
   // variables to store players 1 and 2 points (initially 100)
   const [points1, setPoints1] = useState(100);
   const [points2, setPoints2] = useState(100);
@@ -214,14 +213,59 @@ export default function ContigGame() {
     return;
   }
 
+  // function to load saved game data
+  async function loadData() {
+    const response = await axios.get("http://localhost:5000/api/load");
+    console.log(response.data)
+    if (Object.keys(response.data).length === 2) {
+      newGame();
+    } 
+    else {
+      let data = response.data;
+      setNumbers(data.nums);
+      setStatus(data.status);
+      setPoints1(data.points1);
+      setPoints2(data.points2);
+      setComputerMode(data.computerMode);
+      setCurrentPlayer(data.currentPlayer);
+      setKeys(data.keys);
+      setUsed(data.used);
+      setIndices(data.indices);
+      setUseCount(data.useCount);
+      setInvalidExpr(data.invalidExpr);
+      setDisplay(data.display);
+    }
+    return;
+  }
+
+  // function to create a new game
+  async function newGame() {
+    const response = await axios.get("http://localhost:5000/api/new");
+    // new game due to no saved state
+    setPoints1(100);
+    setPoints2(100);
+    setNumbers(response.data.nums);
+    setStatus([Array(10).fill(0),Array(10).fill(0),
+              Array(10).fill(0),Array(10).fill(0),
+              Array(10).fill(0),Array(10).fill(0),
+              Array(10).fill(0),Array(10).fill(0),
+              Array(10).fill(0),Array(10).fill(0)]);
+    setCurrentPlayer(1);
+    setComputerMode(response.data.computerMode);
+    setWin(false);
+    setWinSeq([]);
+    setKeys([getRandomInt(1,13),getRandomInt(1,13),getRandomInt(1,13),"+","-","*","/","^","(",")"]);
+    setUsed([]);
+    setIndices([]);
+    setUseCount(Array(10).fill(0));
+    setInvalidExpr(false);
+    setDisplay("---");
+    return;
+  }
+
   // get the board and computerMode only the first time
   useEffect(() => {
-    axios.get("http://localhost:5000/api/new")
-         .then((response) => {
-            setNumbers(response.data.board);
-            setComputerMode(response.data.computerMode);
-         }
-        )
+    loadData();
   }, []);
 
   // get the dice every time player changes, and additionally play a machine turn if relevant.
@@ -234,6 +278,21 @@ export default function ContigGame() {
     // if current player is 2, and computermode (checked by function), machine plays its turn
     handleMachineTurn(thisKeys[0], thisKeys[1], thisKeys[2]);
   }, [currentPlayer]);
+
+  // function to save game data
+  function saveData() {
+    let data = {"currentPlayer": currentPlayer,
+                "keys": keys,
+                "used": used,
+                "indices": indices,
+                "useCount": useCount,
+                "invalidExpr": invalidExpr,
+                "display": display};
+    axios.post("http://localhost:5000/api/save", data);
+    alert("Progress saved!");
+    return;
+  }
+
 
   return (
     <>
@@ -260,6 +319,11 @@ export default function ContigGame() {
             disabled={win || (computerMode && currentPlayer==2)} id="pass" type="button">Pass</button>
     <button onClick={handleClear} style={{backgroundColor: "gray", fontSize: "21px"}} 
             disabled={win || (computerMode && currentPlayer==2)} id="clear" type="button">Clear</button>
+    <br></br>
+    <br></br>
+    <button onClick={saveData} style={{backgroundColor: "#daaeeb", fontSize: "21px"}} 
+            disabled={win || (computerMode && currentPlayer==2)}>Save</button>
+    <button onClick={newGame} style={{backgroundColor: "#daaeeb", fontSize: "21px"}}>New Game</button>
     </>
   )
 }

@@ -75,11 +75,8 @@ class Board:
         conds = {"n": x-1 >= 0, "s": x+1 <= 9, "w": y-1 >= 0, "e": y+1 <= 9}
         coords = {"n": (x-1,y), "s": (x+1,y), "e": (x,y+1), "w": (x,y-1),
                   "nw": (x-1,y-1), "se": (x+1,y+1), "sw": (x+1,y-1), "ne": (x-1, y+1)}
-        # cant index. Simply put only coords, filter, then index
-        locs = np.array([coords['n'],coords['s'],
-                        coords['w'],coords['e'],
-                        coords['nw'],coords['ne'],
-                        coords['sw'],coords['se']])
+        locs = np.array([coords['n'],coords['s'],coords['w'],coords['e'],
+                        coords['nw'],coords['ne'],coords['sw'],coords['se']])
         val = np.array([conds['n'],conds['s'],conds['w'],conds['e'],
                         conds['n'] and conds['w'],conds['n'] and conds['e'],
                         conds['s'] and conds['w'],conds['s'] and conds['e']])
