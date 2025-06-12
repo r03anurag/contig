@@ -35,13 +35,17 @@ class ContigGame:
         if not good:
             return ""
         x,y = self.board.num_loc(sq=square)
-        wp1, _ = self.board.total_winning_potential_and_blocking_factor(sq=square, player_id=player_id)
-        _, nb1 = self.board.neighbor_score(sq=square)
+        wp, _ = self.board.total_winning_potential_and_blocking_factor(sq=square, player_id=player_id)
+        _, nb = self.board.neighbor_score(sq=square)
         _ = self.board.allocate_square(sq=square, player_id=player_id)
-        self.points1 = max((self.points1-nb1,0))
-        if wp1 >= 1 or self.points1 == 0:
-            return f"win|{x},{y}|{nb1}"
-        return f"{x},{y}|{nb1}"
+        if player_id == 1:
+            self.points1 = max((self.points1-nb,0))
+        else:
+            self.points2 = max((self.points2-nb,0))
+        if wp >= 1 or self.points1 == 0 or self.points2 == 0:
+            ws = self.board.combined_win_sequence(sq=square, player_id=player_id)
+            return f"win|{x},{y}|{nb}|{ws}"
+        return f"{x},{y}|{nb}"
     
     '''Function to process machine's turn.
         Inputs: dice rolls (list of 3 ints)
@@ -65,7 +69,8 @@ class ContigGame:
                     self.points2 = max((self.points2-nb2,0))
                     j = jsts.copy()
                     j = j.pop()
-                    return f"win|{x1},{y1}|{nb2}|{j}"
+                    ws = self.board.combined_win_sequence(sq=n, player_id=2)
+                    return f"win|{x1},{y1}|{nb2}|{j}|{ws}"
         if len(sposs) == 0:
             return "pass"
         _, nb2, choice = heapq.heappop(sposs)

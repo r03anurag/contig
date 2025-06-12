@@ -126,6 +126,7 @@ export default function ContigGame() {
       let data = response.data.split("|");
       let coords = data[1].split(",")
       let nb = +data[2];
+      let ws = eval(data[3]);
       let thisStatus = status.slice();
       if (currentPlayer == 1) {
         let thisPoints1 = points1;
@@ -140,6 +141,7 @@ export default function ContigGame() {
       }
       setStatus(thisStatus.slice());
       setWin(true);
+      setWinSeq(ws.slice());
       return;
     }
     // regular turn; subtract points and switch player
@@ -183,6 +185,7 @@ export default function ContigGame() {
         let coords = data[1].split(",")
         let nb = +data[2];
         let just = data[3];
+        let ws = eval(data[4]);
         let thisStatus = status.slice();     
         let thisPoints2 = points2;
         thisPoints2 = Math.max(thisPoints2-nb,0);
@@ -191,6 +194,7 @@ export default function ContigGame() {
         setStatus(thisStatus.slice());
         setDisplay(`System rolled ${die1},${die2},${die3}. ${just} = ${numbers[+coords[0]][+coords[1]]}`);
         setWin(true);
+        setWinSeq(ws.slice());
         return;
       }
       // handle data as usual
@@ -301,8 +305,12 @@ export default function ContigGame() {
       { win ? (currentPlayer == 1 ? `${computerMode ? "Human" : "Player 1"} Wins!`: `${computerMode ? "Computer" : "Player 2"} Wins!`) : 
               `Current Player: ${computerMode ? (currentPlayer == 1 ? "Human" : "Computer") : `${currentPlayer}`}`}
     </h3>
-    <button style={{backgroundColor: lightcolors[1], fontSize: "21px"}}>{points1}</button>
-    <button style={{backgroundColor: lightcolors[2], fontSize: "21px"}}>{points2}</button>
+    <button style={{backgroundColor: win && currentPlayer==1 ? (winSeq.length == 0 ? darkcolors[1] : lightcolors[1]) : lightcolors[1], 
+                    color: win && currentPlayer==1 ? (winSeq.length == 0 ? "white" : "black") : "black",
+                    fontSize: "21px"}}>{points1}</button>
+    <button style={{backgroundColor: win && currentPlayer==2 ? (winSeq.length == 0 ? darkcolors[2] : lightcolors[2]) : lightcolors[2], 
+                    color: win && currentPlayer==2 ? (winSeq.length == 0 ? "white" : "black") : "black",
+                    fontSize: "21px"}}>{points2}</button>
     <br></br>
     <br></br>
     <Board sq_stat_grid={status} value_grid={numbers} win={win} winSeq={winSeq}></Board>

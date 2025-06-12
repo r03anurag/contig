@@ -84,3 +84,29 @@ class Board:
         neighbs = self.num_status[tuple(indices.T)].astype(bool)
         total = np.sum(neighbs)
         return total/9, total
+    
+    '''Helper function that finds a continuous winning sequence containing a number 
+        for a specific player (if it exists)'''
+    def win_sequence(self, player_id: int, nums1d: np.ndarray, status1d: np.ndarray):
+        g1 = np.where(status1d == player_id)
+        g1_diffs = np.ediff1d(g1)
+        y = np.where(g1_diffs == 1)
+        if y[0].shape[0] < 5:
+            return []
+        y = np.append(y[0], y[0][-1]+1)
+        r = g1[0][y]
+        return nums1d[r].tolist()
+
+    '''Function that finds all numbers associated with a player's win'''
+    def combined_win_sequence(self, sq: int, player_id: int):
+        x,y = self.num_loc(sq=sq)
+        row_nums, row_status = self.num_placement[x, :], self.num_status[x, :]
+        col_nums, col_status = self.num_placement[:, y], self.num_status[:, y]
+        diag_nums, diag_status = np.diag(self.num_placement, k=y-x), np.diag(self.num_status, k=y-x)
+        antidiag_nums = np.diag(np.fliplr(self.num_placement), k=9-y-x)
+        antidiag_status = np.diag(np.fliplr(self.num_status), k=9-y-x)
+        R = self.win_sequence(player_id=player_id, nums1d=row_nums.copy(), status1d=row_status.copy())
+        C = self.win_sequence(player_id=player_id, nums1d=col_nums.copy(), status1d=col_status.copy())
+        D = self.win_sequence(player_id=player_id, nums1d=diag_nums.copy(), status1d=diag_status.copy())
+        A = self.win_sequence(player_id=player_id, nums1d=antidiag_nums.copy(), status1d=antidiag_status.copy())
+        return R+C+D+A
