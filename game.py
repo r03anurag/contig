@@ -38,10 +38,7 @@ class ContigGame:
         wp, _ = self.board.total_winning_potential_and_blocking_factor(sq=square, player_id=player_id)
         _, nb = self.board.neighbor_score(sq=square)
         _ = self.board.allocate_square(sq=square, player_id=player_id)
-        if player_id == 1:
-            self.points1 = max((self.points1-nb,0))
-        else:
-            self.points2 = max((self.points2-nb,0))
+        exec(f"self.points{player_id} = max((self.points{player_id}-nb,0))")
         if wp >= 1 or self.points1 == 0 or self.points2 == 0:
             ws = self.board.combined_win_sequence(sq=square, player_id=player_id)
             return f"win|{x},{y}|{nb}|{ws}"
