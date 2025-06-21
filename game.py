@@ -63,7 +63,7 @@ class ContigGame:
             check = self.board.allocate_square(sq=n, player_id=2, check_only=True)
             if check == 1:
                 sc, nb2, wpFlag, nbFlag = self.heuristic(candidate=n)
-                heapq.heappush(sposs, [sc, nb2, n])
+                heapq.heappush(sposs, [-sc, nb2, n])
                 if wpFlag or nbFlag:
                     x1, y1 = self.board.num_loc(sq=n)
                     _ = self.board.allocate_square(sq=n, player_id=2)
