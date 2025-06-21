@@ -14,17 +14,21 @@ class Board:
         pos = np.where(self.num_placement == sq)
         return pos[0][0], pos[1][0]
     
-    '''Allocate a square to a player, if available (return True as indication of availability).
-        If unavailable, return False as indication.'''
+    '''Allocate (or only check availability of if check_only=True) a square to a player.
+       Possible return values:
+            * 0: Square is non-existent (e.g., 512)
+            * -1/-2: Square exists, but is taken by the respective player.
+            * 1: Square is available
+    '''
     def allocate_square(self, sq: int, player_id: int, check_only: bool = False):
         if sq not in self.num_placement:
-            return False
+            return 0
         x,y = self.num_loc(sq=sq)
         if self.num_status[x,y] != 0:
-            return False
+            return -self.num_status[x,y]
         if not check_only:
             self.num_status[x,y] = player_id
-        return True
+        return 1
 
     '''Helper function to compute winning potential and blocking factor given 1d-array of number statuses.'''
     def winning_potential_and_blocking_factor(self, oneD: np.ndarray, sq: int, player_id: int, diag: bool = False):

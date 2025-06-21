@@ -24,16 +24,20 @@ class ContigGame:
     '''Function to process a human's turn.
         Inputs: square (int), ID of player (int)
         Possible Outputs: 
-            - "": desired square is taken or does not exist, choose another.
+            - "": desired square does not exist, choose another.
+            - "~{player_id}": desired square is taken by the player player_id. Choose another.
             - f"win|{x},{y}|{neighbors}": The respective human player has won the game. UI will know the 
                      current player and assign a win accordingly.
             - f"{x},{y}|{neighbors}": The turn is complete, and the other player gets to play now. 
                                  Subtract the neighbor points and adjust the score.
     '''
     def human_turn(self, square: int, player_id: int):
-        good = self.board.allocate_square(sq=square, player_id=player_id, check_only=True)
-        if not good:
-            return ""
+        check = self.board.allocate_square(sq=square, player_id=player_id, check_only=True)
+        if check != 1:
+            if check == 0:
+                return ""
+            else:
+                return f"~{-check}"
         x,y = self.board.num_loc(sq=square)
         wp, _ = self.board.total_winning_potential_and_blocking_factor(sq=square, player_id=player_id)
         _, nb = self.board.neighbor_score(sq=square)
@@ -57,9 +61,9 @@ class ContigGame:
         sposs = []
         for n, jsts in poss.items():
             check = self.board.allocate_square(sq=n, player_id=2, check_only=True)
-            if check:
+            if check == 1:
                 sc, nb2, wpFlag, nbFlag = self.heuristic(candidate=n)
-                heapq.heappush(sposs, [-sc, nb2, n])
+                heapq.heappush(sposs, [sc, nb2, n])
                 if wpFlag or nbFlag:
                     x1, y1 = self.board.num_loc(sq=n)
                     _ = self.board.allocate_square(sq=n, player_id=2)

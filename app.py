@@ -9,7 +9,7 @@ APP = Flask(__name__)
 CORS(APP)
 
 # (possible) TODO: change this to True if you want to play in computer mode
-computer = False
+computer = True
 
 # initial game
 game = ContigGame(computer=computer)

@@ -39,6 +39,14 @@ score decreases by 4. The other objective of this game is to be the first to arr
 * Anurag Renduchintala
 
 # Versions
+* 6/20/2025
+    * Changes in language used on UI:
+        * If in computer mode, player 1 is referred to as "you" instead of as "human".
+        * If a square on the board is taken, UI will detail the respective bearer of the square 
+          instead of a generic message that says the square is either taken or does not exist.
+            - Note: The `allocate_square()` function in `board.py` has different return values to reflect status (-2/-1/0/1).
+                    A negative value indicates a square taken by that respective player, a zero value indicates non-existence, 
+                    and a positive 1 indicates availability.
 * 6/12/2025
     * Initial release.
 

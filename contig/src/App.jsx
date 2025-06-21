@@ -109,6 +109,7 @@ export default function ContigGame() {
       setInvalidExpr(true);
       return;
     }
+    setInvalidExpr(false);
     // 2. Expression evaluates to a valid number. Check to make sure it is a + int, 
     // then send it to the backend to check validity.
     if (result < 1 || Math.floor(result) !== result) {
@@ -116,9 +117,15 @@ export default function ContigGame() {
       return;
     }
     const response = await axios.post(`http://localhost:5000/api/humanturn`, `${result},${currentPlayer}`);
-    // square does not exist or is already taken
+    // square does not exist
     if (response.data === "") {
-      setDisplay(`Square ${result} is either taken or does not exist. Select another option, or pass.`);
+      setDisplay(`Square ${result} does not exist. Select another option, or pass.`);
+      return;
+    }
+    // square is taken by the specified player
+    else if (response.data[0] === "~") {
+      let rp = +response.data[1];
+      setDisplay(`Square ${result} is taken by ${computerMode ? (rp == 1 ? "you" : "computer"): `Player ${rp}`}. Select another option, or pass.`);
       return;
     }
     // current player has won
@@ -302,8 +309,8 @@ export default function ContigGame() {
     <>
     <h3 style={{color: "black", backgroundColor: lightcolors[currentPlayer], borderStyle:"solid none solid none", 
                 borderColor: darkcolors[currentPlayer]}}>
-      { win ? (currentPlayer == 1 ? `${computerMode ? "Human" : "Player 1"} Wins!`: `${computerMode ? "Computer" : "Player 2"} Wins!`) : 
-              `Current Player: ${computerMode ? (currentPlayer == 1 ? "Human" : "Computer") : `${currentPlayer}`}`}
+      { win ? (currentPlayer == 1 ? `${computerMode ? "You win!" : "Player 1 Wins!"}`: `${computerMode ? "Computer" : "Player 2"} Wins!`) : 
+              `Current Player: ${computerMode ? (currentPlayer == 1 ? "You" : "Computer") : `${currentPlayer}`}`}
     </h3>
     <button style={{backgroundColor: win && currentPlayer==1 ? (winSeq.length == 0 ? darkcolors[1] : lightcolors[1]) : lightcolors[1], 
                     color: win && currentPlayer==1 ? (winSeq.length == 0 ? "white" : "black") : "black",
